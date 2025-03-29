@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>YAML Validator & Generator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>YAML Validator & Generator</h1>
+
+      <div class="file-section">
+        <h2>Current File</h2>
+        <div id="file-path">No file selected</div>
+        <button id="load-file-btn">Load YAML File</button>
+      </div>
+
+      <div class="editor-section">
+        <h2>YAML Editor</h2>
+        <textarea
+          id="yaml-input"
+          placeholder="Enter your YAML content here..."
+        ></textarea>
+      </div>
+
+      <div class="actions-section">
+        <button id="validate-btn">Validate YAML</button>
+        <button id="generate-btn">Generate New YAML</button>
+        <button id="append-btn">Append to YAML</button>
+      </div>
+
+      <div class="result-section">
+        <h2>Results</h2>
+        <div id="result-area"></div>
+      </div>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
