@@ -3,7 +3,7 @@ import sys
 import json
 import os
 
-def generate_yaml(data, file_path, append=False):
+def generate(data, file_path, append=False):
     try:
         mode = 'a' if append and os.path.exists(file_path) else 'w'
         
@@ -35,7 +35,7 @@ if __name__ == "__main__":
             if len(sys.argv) > 3:
                 append = sys.argv[3].lower() == 'true'
                 
-            result = generate_yaml(data, file_path, append)
+            result = generate(data, file_path, append)
             print(json.dumps(result))
         except json.JSONDecodeError:
             print(json.dumps({"status": "error", "message": "Invalid JSON data provided"}))
