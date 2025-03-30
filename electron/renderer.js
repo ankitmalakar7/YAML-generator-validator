@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const yamlContent = yamlInput.value;
       if (!yamlContent.trim()) {
-        displayResult({
+        display({
           status: "error",
           message: "Please enter YAML content to validate",
         });
@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const result = await window.yamlAPI.validateYAMLContent(yamlContent);
-      displayResult(result);
+      display(result);
     } catch (error) {
-      displayResult({ status: "error", message: error.message });
+      display({ status: "error", message: error.message });
     }
   });
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const yamlContent = yamlInput.value;
       if (!yamlContent.trim()) {
-        displayResult({
+        display({
           status: "error",
           message: "Please enter YAML content to generate",
         });
@@ -43,13 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
         null,
         false
       );
-      displayResult(result);
+      display(result);
       if (result.status === "success") {
         currentFilePath = result.filePath || currentFilePath;
         updateFilePathDisplay();
       }
     } catch (error) {
-      displayResult({ status: "error", message: error.message });
+      display({ status: "error", message: error.message });
     }
   });
 
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const yamlContent = yamlInput.value;
       if (!yamlContent.trim()) {
-        displayResult({
+        display({
           status: "error",
           message: "Please enter YAML content to append",
         });
@@ -69,13 +69,13 @@ document.addEventListener("DOMContentLoaded", () => {
         null,
         true
       );
-      displayResult(result);
+      display(result);
       if (result.status === "success") {
         currentFilePath = result.filePath || currentFilePath;
         updateFilePathDisplay();
       }
     } catch (error) {
-      displayResult({ status: "error", message: error.message });
+      display({ status: "error", message: error.message });
     }
   });
 
@@ -85,13 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
       yamlInput.value = result.content;
       currentFilePath = result.filePath;
       updateFilePathDisplay();
-      displayResult({ status: "success", message: "File loaded successfully" });
+      display({ status: "success", message: "File loaded successfully" });
     } else if (result.status === "error") {
-      displayResult(result);
+      display(result);
     }
   });
 
-  function displayResult(result) {
+  function display(result) {
     resultArea.innerHTML = "";
 
     const statusDiv = document.createElement("div");

@@ -4,12 +4,15 @@
     "description": "YAML Validator and Generator Tool",
     "main": "main.js",
     "scripts": {
-      "start": "electron .",
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "electron .",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",
     "license": "ISC",
     "devDependencies": {
-      "electron": "^25.0.0"
+        "electron": "^25.0.0"
+    },
+    "dependencies": {
+        "uuid": "^11.1.0"
     }
-  }
+}

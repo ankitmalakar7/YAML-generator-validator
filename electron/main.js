@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const { spawn } = require("child_process");
 const fs = require("fs");
+const os = require("os");
+const { v4: uuidv4 } = require("uuid");
 
 let mainWindow;
 
@@ -17,6 +19,7 @@ function createWindow() {
   });
 
   mainWindow.loadFile("index.html");
+  // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -45,6 +48,28 @@ ipcMain.handle("validate-yaml", async (event, filePath) => {
   return runPythonScript("yaml_validator.py", [filePath]);
 });
 
+ipcMain.handle("validate-yaml-content", async (event, content) => {
+  const tempFilePath = path.join(os.tmpdir(), `yaml-validate-${uuidv4()}.yaml`);
+
+  try {
+    fs.writeFileSync(tempFilePath, content, "utf8");
+    const result = await runPythonScript("yaml_validator.py", [tempFilePath]);
+    fs.unlinkSync(tempFilePath);
+
+    return result;
+  } catch (error) {
+    try {
+      if (fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
+    } catch (e) {
+      console.error("Error cleaning up temp file:", e);
+    }
+
+    return { status: "error", message: `Error: ${error.message}` };
+  }
+});
+
 ipcMain.handle("generate-yaml", async (event, data, filePath, append) => {
   if (!filePath) {
     const result = await dialog.showSaveDialog(mainWindow, {
@@ -61,6 +86,53 @@ ipcMain.handle("generate-yaml", async (event, data, filePath, append) => {
     append,
   ]);
 });
+
+ipcMain.handle(
+  "generate-yaml-from-content",
+  async (event, content, filePath, append) => {
+    if (!filePath) {
+      const result = await dialog.showSaveDialog(mainWindow, {
+        filters: [{ name: "YAML Files", extensions: ["yaml", "yml"] }],
+      });
+
+      if (result.canceled) return { status: "canceled" };
+      filePath = result.filePath;
+    }
+
+    const tempFilePath = path.join(
+      os.tmpdir(),
+      `yaml-content-${uuidv4()}.yaml`
+    );
+
+    try {
+      fs.writeFileSync(tempFilePath, content, "utf8");
+
+      const result = await runPythonScript("raw_yaml_generator.py", [
+        tempFilePath,
+        filePath,
+        append,
+      ]);
+
+      fs.unlinkSync(tempFilePath);
+
+      if (result.status === "success") {
+        result.filePath = filePath;
+      }
+
+      return result;
+    } catch (error) {
+      try {
+        if (fs.existsSync(tempFilePath)) {
+          fs.unlinkSync(tempFilePath);
+        }
+      } catch (e) {
+        console.error("Error cleaning up temp file:", e);
+      }
+
+      return { status: "error", message: `Error: ${error.message}` };
+    }
+  }
+);
 
 ipcMain.handle("open-file-dialog", async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
@@ -113,7 +185,7 @@ function runPythonScript(scriptName, args) {
         } catch (e) {
           resolve({
             status: "error",
-            message: "Failed to parse Python output",
+            message: "Failed to parse Python output: " + output,
           });
         }
       }
