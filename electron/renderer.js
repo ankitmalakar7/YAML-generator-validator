@@ -64,16 +64,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      if (!currentFilePath) {
+        const fileResult = await window.yamlAPI.openFileDialog();
+        if (fileResult.status === "success") {
+          currentFilePath = fileResult.filePath;
+          updateFilePathDisplay();
+        } else if (fileResult.status === "canceled") {
+          display({ status: "info", message: "Operation canceled" });
+          return;
+        } else {
+          display(fileResult);
+          return;
+        }
+      }
       const result = await window.yamlAPI.generateYAMLFromContent(
         yamlContent,
-        null,
+        currentFilePath,
         true
       );
       display(result);
-      if (result.status === "success") {
-        currentFilePath = result.filePath || currentFilePath;
-        updateFilePathDisplay();
-      }
     } catch (error) {
       display({ status: "error", message: error.message });
     }
